@@ -18,6 +18,7 @@ from homeassistant.helpers.typing import ConfigType
 from .const import CONF_SESSION_TOKEN, DOMAIN
 from .coordinator import NintendoParentalControlsConfigEntry, NintendoUpdateCoordinator
 from .services import async_setup_services
+from .util import prepare_authenticator
 
 _PLATFORMS: list[Platform] = [
     Platform.SENSOR,
@@ -39,9 +40,11 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: NintendoParentalControlsConfigEntry
 ) -> bool:
     """Set up Nintendo Switch parental controls from a config entry."""
-    nintendo_auth = Authenticator(
-        session_token=entry.data[CONF_SESSION_TOKEN],
-        client_session=async_get_clientsession(hass),
+    nintendo_auth = prepare_authenticator(
+        Authenticator(
+            session_token=entry.data[CONF_SESSION_TOKEN],
+            client_session=async_get_clientsession(hass),
+        )
     )
     try:
         await nintendo_auth.async_complete_login(use_session_token=True)

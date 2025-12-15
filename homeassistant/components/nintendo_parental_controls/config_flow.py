@@ -16,6 +16,7 @@ from homeassistant.const import CONF_API_TOKEN
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import APP_SETUP_URL, CONF_SESSION_TOKEN, DOMAIN
+from .util import prepare_authenticator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +34,9 @@ class NintendoConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
         if self.auth is None:
-            self.auth = Authenticator(client_session=async_get_clientsession(self.hass))
+            self.auth = prepare_authenticator(
+                Authenticator(client_session=async_get_clientsession(self.hass))
+            )
 
         if user_input is not None:
             nintendo_api = Api(
@@ -86,7 +89,9 @@ class NintendoConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         reauth_entry = self._get_reauth_entry()
         if self.auth is None:
-            self.auth = Authenticator(client_session=async_get_clientsession(self.hass))
+            self.auth = prepare_authenticator(
+                Authenticator(client_session=async_get_clientsession(self.hass))
+            )
         if user_input is not None:
             try:
                 await self.auth.async_complete_login(user_input[CONF_API_TOKEN])
